@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uncle Warren Says</title>
+    <title>Uncle Warren Says | Stock Analysis</title>
     <style>
         * {
             margin: 0;
@@ -15,66 +15,67 @@
             font-family: 'Georgia', serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
+            padding: 20px;
             color: #fff;
         }
 
         .container {
-            max-width: 600px;
-            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            padding: 10px;
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            margin-bottom: 8px;
             color: #f5d742;
         }
 
         .subtitle {
             color: #a0a0a0;
             font-style: italic;
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
         }
 
         .search-container {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 20px;
+            margin-bottom: 20px;
             backdrop-filter: blur(10px);
         }
 
         .search-box {
             display: flex;
+            flex-direction: column;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+
+        @media (min-width: 500px) {
+            .search-box {
+                flex-direction: row;
+            }
         }
 
         input[type="text"] {
             flex: 1;
-            padding: 15px 20px;
-            font-size: 1.2rem;
+            padding: 14px 18px;
+            font-size: 1.1rem;
             border: 2px solid #444;
             border-radius: 8px;
             background: #2a2a4a;
             color: #fff;
-            text-transform: uppercase;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
+            font-family: 'Georgia', serif;
         }
 
         input[type="text"]::placeholder {
-            color: #666;
-            text-transform: none;
-            letter-spacing: normal;
+            color: #777;
         }
 
         input[type="text"]:focus {
@@ -83,7 +84,7 @@
         }
 
         .warren-btn {
-            padding: 15px 25px;
+            padding: 14px 20px;
             font-size: 1rem;
             font-weight: bold;
             background: linear-gradient(135deg, #f5d742 0%, #d4a800 100%);
@@ -111,24 +112,24 @@
         }
 
         .criteria {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            text-align: center;
-            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            font-size: 0.8rem;
             color: #888;
         }
 
         .criteria span {
             background: rgba(255, 255, 255, 0.05);
-            padding: 8px;
+            padding: 6px 10px;
             border-radius: 6px;
         }
 
         .result-container {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 30px;
+            padding: 20px;
             backdrop-filter: blur(10px);
             display: none;
         }
@@ -143,30 +144,130 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .verdict-header {
+        /* Price Header */
+        .price-header {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
             gap: 15px;
             margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .verdict-emoji {
-            font-size: 3rem;
-        }
-
-        .verdict-text {
+        .stock-info {
             flex: 1;
+            min-width: 200px;
         }
 
         .company-name {
-            font-size: 1.4rem;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
             color: #f5d742;
             margin-bottom: 5px;
         }
 
+        .ticker-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        .market-cap {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .price-info {
+            text-align: right;
+        }
+
+        .current-price {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: bold;
+        }
+
+        .price-change {
+            font-size: 0.95rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .price-change.positive {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .price-change.negative {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        /* Chart */
+        .chart-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .sparkline-container {
+            height: 80px;
+            position: relative;
+        }
+
+        .sparkline {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .chart-stat {
+            text-align: center;
+        }
+
+        .chart-stat-value {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Verdict */
+        .verdict-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .verdict-emoji {
+            font-size: 2.5rem;
+        }
+
         .verdict-badge {
             display: inline-block;
-            padding: 5px 15px;
+            padding: 6px 16px;
             border-radius: 20px;
             font-size: 0.9rem;
             font-weight: bold;
@@ -180,39 +281,74 @@
         .verdict-PASS { background: #e74c3c; color: #fff; }
 
         .summary {
-            font-size: 1.15rem;
+            font-size: clamp(1rem, 3vw, 1.15rem);
             line-height: 1.7;
             color: #e0e0e0;
-            margin-bottom: 25px;
-            padding: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 10px;
             border-left: 4px solid #f5d742;
         }
 
+        /* Metrics Sections */
+        .metrics-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            color: #f5d742;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(245, 215, 66, 0.3);
+        }
+
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 10px;
+        }
+
+        @media (min-width: 500px) {
+            .metrics-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 650px) {
+            .metrics-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         .metric-card {
             background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
         }
 
         .metric-label {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #888;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .metric-value {
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: #fff;
         }
@@ -220,9 +356,11 @@
         .metric-value.good { color: #2ecc71; }
         .metric-value.ok { color: #f39c12; }
         .metric-value.bad { color: #e74c3c; }
+        .metric-value.neutral { color: #aaa; }
 
+        /* Score Bar */
         .score-bar {
-            margin-top: 25px;
+            margin-top: 20px;
         }
 
         .score-label {
@@ -233,36 +371,93 @@
         }
 
         .score-track {
-            height: 10px;
+            height: 12px;
             background: #333;
-            border-radius: 5px;
+            border-radius: 6px;
             overflow: hidden;
         }
 
         .score-fill {
             height: 100%;
             background: linear-gradient(90deg, #e74c3c, #f39c12, #2ecc71);
-            border-radius: 5px;
+            border-radius: 6px;
             transition: width 0.5s ease;
+        }
+
+        /* Reasons */
+        .reasons-section {
+            margin-top: 20px;
+            display: grid;
+            gap: 15px;
+        }
+
+        @media (min-width: 500px) {
+            .reasons-section {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .reasons-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .reasons-box h4 {
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .reasons-box.pros h4 { color: #2ecc71; }
+        .reasons-box.cons h4 { color: #e74c3c; }
+
+        .reasons-box ul {
+            list-style: none;
+            font-size: 0.85rem;
+            color: #bbb;
+        }
+
+        .reasons-box li {
+            padding: 5px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .reasons-box.pros li::before {
+            content: '+';
+            position: absolute;
+            left: 0;
+            color: #2ecc71;
+        }
+
+        .reasons-box.cons li::before {
+            content: '−';
+            position: absolute;
+            left: 0;
+            color: #e74c3c;
         }
 
         .error-message {
             text-align: center;
             color: #e74c3c;
             font-size: 1.1rem;
-            padding: 20px;
+            padding: 30px;
         }
 
         .quote {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 30px;
             font-style: italic;
             color: #666;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            padding: 0 10px;
         }
 
         .quote-text {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .quote-author {
@@ -271,7 +466,7 @@
 
         .loading {
             text-align: center;
-            padding: 30px;
+            padding: 40px;
         }
 
         .loading-spinner {
@@ -289,15 +484,22 @@
         }
 
         footer {
-            margin-top: 40px;
+            margin-top: 30px;
             text-align: center;
             color: #555;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
         footer a {
             color: #f5d742;
             text-decoration: none;
+        }
+
+        .hint {
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -305,23 +507,25 @@
     <div class="container">
         <header>
             <h1>Uncle Warren Says</h1>
-            <p class="subtitle">Stock analysis based on Buffett's investment principles</p>
+            <p class="subtitle">Value investing wisdom from Buffett & Graham</p>
         </header>
 
         <div class="search-container">
             <div class="search-box">
-                <input type="text" id="ticker-input" placeholder="Enter ticker (e.g., AAPL)" maxlength="5">
+                <input type="text" id="ticker-input" placeholder="Enter ticker or company name...">
                 <button class="warren-btn" id="analyze-btn">What Would Warren Do?</button>
             </div>
             <div class="criteria">
                 <span>P/E &lt; 35</span>
                 <span>EPS Growth &gt; 10%</span>
                 <span>ROE &gt; 15%</span>
+                <span>Low Debt</span>
             </div>
+            <p class="hint">Try: AAPL, Pinterest, Berkshire, Tesla...</p>
         </div>
 
         <div class="result-container" id="result">
-            <!-- Results will be injected here -->
+            <!-- Results injected here -->
         </div>
 
         <div class="quote">
@@ -340,25 +544,18 @@
         const analyzeBtn = document.getElementById('analyze-btn');
         const resultContainer = document.getElementById('result');
 
-        // Handle button click
         analyzeBtn.addEventListener('click', analyzeStock);
-
-        // Handle Enter key
         tickerInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                analyzeStock();
-            }
+            if (e.key === 'Enter') analyzeStock();
         });
 
         async function analyzeStock() {
-            const ticker = tickerInput.value.trim().toUpperCase();
-
-            if (!ticker) {
-                showError('Please enter a stock ticker symbol.');
+            const query = tickerInput.value.trim();
+            if (!query) {
+                showError('Please enter a stock ticker or company name.');
                 return;
             }
 
-            // Show loading state
             analyzeBtn.disabled = true;
             analyzeBtn.textContent = 'Analyzing...';
             resultContainer.classList.add('show');
@@ -370,7 +567,7 @@
             `;
 
             try {
-                const response = await fetch(`/analyze/${ticker}`);
+                const response = await fetch(`/analyze/${encodeURIComponent(query)}`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -388,69 +585,223 @@
 
         function showError(message) {
             resultContainer.classList.add('show');
-            resultContainer.innerHTML = `
-                <div class="error-message">
-                    <p>❌ ${message}</p>
-                </div>
+            resultContainer.innerHTML = `<div class="error-message">❌ ${message}</div>`;
+        }
+
+        function getMetricClass(name, value) {
+            if (value === null || value === undefined) return 'neutral';
+            switch(name) {
+                case 'pe':
+                    return value < 20 ? 'good' : value < 35 ? 'ok' : 'bad';
+                case 'eps_growth':
+                    return value > 15 ? 'good' : value > 10 ? 'ok' : 'bad';
+                case 'roe':
+                    return value > 20 ? 'good' : value > 15 ? 'ok' : 'bad';
+                case 'debt_equity':
+                    return value < 0.5 ? 'good' : value < 1.5 ? 'ok' : 'bad';
+                case 'pb':
+                    return value < 1.5 ? 'good' : value < 3 ? 'ok' : 'bad';
+                case 'current_ratio':
+                    return value > 2 ? 'good' : value > 1 ? 'ok' : 'bad';
+                case 'profit_margin':
+                    return value > 15 ? 'good' : value > 5 ? 'ok' : 'bad';
+                case 'dividend_yield':
+                    return value > 2 ? 'good' : value > 0 ? 'ok' : 'neutral';
+                default:
+                    return '';
+            }
+        }
+
+        function formatValue(value, suffix = '', decimals = 1) {
+            if (value === null || value === undefined) return 'N/A';
+            return value.toFixed(decimals) + suffix;
+        }
+
+        function drawSparkline(container, data, isPositive) {
+            if (!data || data.length < 2) {
+                container.innerHTML = '<p style="text-align:center;color:#666;padding-top:30px;">Chart unavailable</p>';
+                return;
+            }
+
+            const width = container.offsetWidth;
+            const height = 80;
+            const padding = 5;
+
+            const validData = data.filter(d => d !== null);
+            const min = Math.min(...validData);
+            const max = Math.max(...validData);
+            const range = max - min || 1;
+
+            const points = validData.map((val, i) => {
+                const x = padding + (i / (validData.length - 1)) * (width - 2 * padding);
+                const y = height - padding - ((val - min) / range) * (height - 2 * padding);
+                return `${x},${y}`;
+            }).join(' ');
+
+            const color = isPositive ? '#2ecc71' : '#e74c3c';
+
+            container.innerHTML = `
+                <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+                    <polyline
+                        fill="none"
+                        stroke="${color}"
+                        stroke-width="2"
+                        points="${points}"
+                    />
+                </svg>
             `;
         }
 
         function showResult(data) {
-            const metrics = data.metrics;
+            const m = data.metrics;
+            const ph = data.price_history;
+            const priceChange = ph ? ph.return_3m : null;
+            const isPositive = priceChange !== null && priceChange >= 0;
 
-            function getMetricClass(name, value) {
-                if (value === null || value === undefined) return '';
-                switch(name) {
-                    case 'pe':
-                        return value < 20 ? 'good' : value < 35 ? 'ok' : 'bad';
-                    case 'eps_growth':
-                        return value > 15 ? 'good' : value > 10 ? 'ok' : 'bad';
-                    case 'roe':
-                        return value > 20 ? 'good' : value > 15 ? 'ok' : 'bad';
-                    case 'debt_equity':
-                        return value < 1 ? 'good' : value < 2 ? 'ok' : 'bad';
-                    default:
-                        return '';
-                }
+            let prosHtml = '';
+            if (data.reasons_for && data.reasons_for.length > 0) {
+                prosHtml = data.reasons_for.map(r => `<li>${r}</li>`).join('');
+            } else {
+                prosHtml = '<li>No strong positives identified</li>';
             }
 
-            function formatValue(value, suffix = '') {
-                if (value === null || value === undefined) return 'N/A';
-                return value.toFixed(1) + suffix;
+            let consHtml = '';
+            if (data.reasons_against && data.reasons_against.length > 0) {
+                consHtml = data.reasons_against.map(r => `<li>${r}</li>`).join('');
+            } else {
+                consHtml = '<li>No major concerns</li>';
             }
 
             resultContainer.innerHTML = `
-                <div class="verdict-header">
+                <!-- Price Header -->
+                <div class="price-header">
+                    <div class="stock-info">
+                        <div class="company-name">${data.company}</div>
+                        <span class="ticker-badge">${data.ticker}</span>
+                        <span class="market-cap">${data.market_cap}</span>
+                    </div>
+                    <div class="price-info">
+                        ${data.price ? `<div class="current-price">$${data.price.toFixed(2)}</div>` : ''}
+                        ${priceChange !== null ? `
+                            <div class="price-change ${isPositive ? 'positive' : 'negative'}">
+                                ${isPositive ? '▲' : '▼'} ${Math.abs(priceChange).toFixed(2)}% (3mo)
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                ${ph && ph.sparkline ? `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <span>3-Month Performance</span>
+                            <span>$${ph.start_price} → $${ph.end_price}</span>
+                        </div>
+                        <div class="sparkline-container" id="sparkline"></div>
+                        <div class="chart-stats">
+                            <div class="chart-stat">
+                                <div class="chart-stat-value">$${ph.low_3m}</div>
+                                <div>3mo Low</div>
+                            </div>
+                            <div class="chart-stat">
+                                <div class="chart-stat-value">$${ph.high_3m}</div>
+                                <div>3mo High</div>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Verdict -->
+                <div class="verdict-section">
                     <span class="verdict-emoji">${data.emoji}</span>
-                    <div class="verdict-text">
-                        <div class="company-name">${data.company} (${data.ticker})</div>
-                        <span class="verdict-badge verdict-${data.verdict}">${data.verdict}</span>
+                    <span class="verdict-badge verdict-${data.verdict}">${data.verdict}</span>
+                    <span style="color:#888;font-size:0.9rem;">Score: ${data.score}/100</span>
+                </div>
+
+                <div class="summary">${data.summary}</div>
+
+                <!-- Buffett Metrics -->
+                <div class="metrics-section">
+                    <div class="section-title">Buffett Metrics</div>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">P/E Ratio</div>
+                            <div class="metric-value ${getMetricClass('pe', m.pe)}">${formatValue(m.pe)}x</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">EPS Growth</div>
+                            <div class="metric-value ${getMetricClass('eps_growth', m.eps_growth)}">${formatValue(m.eps_growth, '%')}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">ROE</div>
+                            <div class="metric-value ${getMetricClass('roe', m.roe)}">${formatValue(m.roe, '%')}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Profit Margin</div>
+                            <div class="metric-value ${getMetricClass('profit_margin', m.profit_margin)}">${formatValue(m.profit_margin, '%')}</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="summary">
-                    ${data.summary}
+                <!-- Graham Metrics -->
+                <div class="metrics-section">
+                    <div class="section-title">Graham Metrics</div>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">P/B Ratio</div>
+                            <div class="metric-value ${getMetricClass('pb', m.pb)}">${formatValue(m.pb, 'x')}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Current Ratio</div>
+                            <div class="metric-value ${getMetricClass('current_ratio', m.current_ratio)}">${formatValue(m.current_ratio)}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Debt/Equity</div>
+                            <div class="metric-value ${getMetricClass('debt_equity', m.debt_equity)}">${formatValue(m.debt_equity)}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Dividend</div>
+                            <div class="metric-value ${getMetricClass('dividend_yield', m.dividend_yield)}">${formatValue(m.dividend_yield, '%')}</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-label">P/E Ratio</div>
-                        <div class="metric-value ${getMetricClass('pe', metrics.pe)}">${formatValue(metrics.pe)}x</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">EPS Growth</div>
-                        <div class="metric-value ${getMetricClass('eps_growth', metrics.eps_growth)}">${formatValue(metrics.eps_growth, '%')}</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">ROE</div>
-                        <div class="metric-value ${getMetricClass('roe', metrics.roe)}">${formatValue(metrics.roe, '%')}</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Debt/Equity</div>
-                        <div class="metric-value ${getMetricClass('debt_equity', metrics.debt_equity)}">${formatValue(metrics.debt_equity)}</div>
+                <!-- Additional Info -->
+                <div class="metrics-section">
+                    <div class="section-title">Additional Info</div>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Beta</div>
+                            <div class="metric-value">${formatValue(m.beta)}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Insider Own</div>
+                            <div class="metric-value">${formatValue(m.insider_own, '%')}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Inst. Own</div>
+                            <div class="metric-value">${formatValue(m.inst_own, '%')}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">YTD Perf</div>
+                            <div class="metric-value ${m.perf_ytd > 0 ? 'good' : m.perf_ytd < 0 ? 'bad' : ''}">${formatValue(m.perf_ytd, '%')}</div>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Reasons -->
+                <div class="reasons-section">
+                    <div class="reasons-box pros">
+                        <h4>✓ Strengths</h4>
+                        <ul>${prosHtml}</ul>
+                    </div>
+                    <div class="reasons-box cons">
+                        <h4>✗ Concerns</h4>
+                        <ul>${consHtml}</ul>
+                    </div>
+                </div>
+
+                <!-- Score Bar -->
                 <div class="score-bar">
                     <div class="score-label">
                         <span>Buffett Score</span>
@@ -461,6 +812,16 @@
                     </div>
                 </div>
             `;
+
+            // Draw sparkline after DOM is ready
+            if (ph && ph.sparkline) {
+                setTimeout(() => {
+                    const sparklineContainer = document.getElementById('sparkline');
+                    if (sparklineContainer) {
+                        drawSparkline(sparklineContainer, ph.sparkline, isPositive);
+                    }
+                }, 50);
+            }
         }
     </script>
 </body>
