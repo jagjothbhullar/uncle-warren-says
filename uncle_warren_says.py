@@ -244,6 +244,171 @@ class UncleWarrenSays:
                 'profit_margin': 5.9,
                 'sector': 'Healthcare',
                 'buffett_notes': "Largest US health insurer with growing Optum services division. Aging population tailwind. Consistent double-digit earnings growth for a decade."
+            },
+            {
+                'ticker': 'GOOGL',
+                'company': 'Alphabet Inc.',
+                'pe': 22.4,
+                'eps_growth': 23.1,
+                'roe': 28.5,
+                'debt_equity': 0.10,
+                'profit_margin': 24.0,
+                'sector': 'Technology',
+                'buffett_notes': "Dominant search monopoly with 90%+ market share. YouTube and Cloud provide growth engines. Virtually debt-free with $100B+ cash."
+            },
+            {
+                'ticker': 'META',
+                'company': 'Meta Platforms',
+                'pe': 24.8,
+                'eps_growth': 35.2,
+                'roe': 33.8,
+                'debt_equity': 0.18,
+                'profit_margin': 29.0,
+                'sector': 'Technology',
+                'buffett_notes': "3 billion daily users across apps. Advertising duopoly with Google. AI investments driving engagement and efficiency gains."
+            },
+            {
+                'ticker': 'MSFT',
+                'company': 'Microsoft Corp.',
+                'pe': 32.5,
+                'eps_growth': 15.8,
+                'roe': 38.5,
+                'debt_equity': 0.35,
+                'profit_margin': 36.4,
+                'sector': 'Technology',
+                'buffett_notes': "Enterprise software moat with Office 365 and Azure cloud. Recurring revenue model with 95%+ retention. AI integration across product suite."
+            },
+            {
+                'ticker': 'HD',
+                'company': 'Home Depot',
+                'pe': 21.3,
+                'eps_growth': 11.8,
+                'roe': 1250.0,
+                'debt_equity': 42.5,
+                'profit_margin': 10.2,
+                'sector': 'Consumer Cyclical',
+                'buffett_notes': "Dominant home improvement retailer. Pro segment growing faster than DIY. Housing stock aging creates renovation demand tailwind."
+            },
+            {
+                'ticker': 'LMT',
+                'company': 'Lockheed Martin',
+                'pe': 17.2,
+                'eps_growth': 10.5,
+                'roe': 82.4,
+                'debt_equity': 2.52,
+                'profit_margin': 9.8,
+                'sector': 'Industrials',
+                'buffett_notes': "F-35 program provides decades of revenue visibility. Geopolitical tensions driving defense spending globally. Consistent dividend growth."
+            },
+            {
+                'ticker': 'CAT',
+                'company': 'Caterpillar Inc.',
+                'pe': 15.8,
+                'eps_growth': 18.2,
+                'roe': 54.3,
+                'debt_equity': 1.94,
+                'profit_margin': 15.7,
+                'sector': 'Industrials',
+                'buffett_notes': "Global leader in construction and mining equipment. Infrastructure spending tailwind worldwide. Strong dealer network creates service moat."
+            },
+            {
+                'ticker': 'ABBV',
+                'company': 'AbbVie Inc.',
+                'pe': 14.5,
+                'eps_growth': 12.3,
+                'roe': 67.8,
+                'debt_equity': 5.21,
+                'profit_margin': 18.5,
+                'sector': 'Healthcare',
+                'buffett_notes': "Humira successor drugs (Skyrizi, Rinvoq) growing rapidly. Strong pipeline and acquisition strategy. 5%+ dividend yield with growth."
+            },
+            {
+                'ticker': 'MRK',
+                'company': 'Merck & Co.',
+                'pe': 13.2,
+                'eps_growth': 14.8,
+                'roe': 31.2,
+                'debt_equity': 0.85,
+                'profit_margin': 24.6,
+                'sector': 'Healthcare',
+                'buffett_notes': "Keytruda is world's best-selling drug. Oncology leadership with strong pipeline. Gardasil vaccine franchise provides stability."
+            },
+            {
+                'ticker': 'AVGO',
+                'company': 'Broadcom Inc.',
+                'pe': 28.4,
+                'eps_growth': 21.5,
+                'roe': 35.2,
+                'debt_equity': 1.02,
+                'profit_margin': 27.3,
+                'sector': 'Technology',
+                'buffett_notes': "Semiconductor leader across networking, wireless, and storage. VMware acquisition adds enterprise software recurring revenue. AI networking demand surge."
+            },
+            {
+                'ticker': 'WMT',
+                'company': 'Walmart Inc.',
+                'pe': 28.9,
+                'eps_growth': 12.4,
+                'roe': 19.8,
+                'debt_equity': 0.62,
+                'profit_margin': 2.4,
+                'sector': 'Consumer Defensive',
+                'buffett_notes': "World's largest retailer with unmatched scale advantages. E-commerce and advertising businesses accelerating. Dividend aristocrat with 50+ years of increases."
+            },
+            {
+                'ticker': 'JPM',
+                'company': 'JPMorgan Chase',
+                'pe': 11.8,
+                'eps_growth': 16.2,
+                'roe': 15.2,
+                'debt_equity': 1.24,
+                'profit_margin': 32.5,
+                'sector': 'Financial Services',
+                'buffett_notes': "America's largest bank with fortress balance sheet. Best-in-class management under Jamie Dimon. Technology investments create competitive advantage."
+            },
+            {
+                'ticker': 'ORCL',
+                'company': 'Oracle Corp.',
+                'pe': 23.6,
+                'eps_growth': 13.4,
+                'roe': 125.8,
+                'debt_equity': 5.82,
+                'profit_margin': 22.1,
+                'sector': 'Technology',
+                'buffett_notes': "Cloud infrastructure growing 50%+. Database software is essential enterprise infrastructure. Cerner acquisition adds healthcare vertical."
+            },
+            {
+                'ticker': 'TXN',
+                'company': 'Texas Instruments',
+                'pe': 29.8,
+                'eps_growth': 10.2,
+                'roe': 54.8,
+                'debt_equity': 0.66,
+                'profit_margin': 37.2,
+                'sector': 'Technology',
+                'buffett_notes': "Analog semiconductor leader with long product lifecycles. Manufacturing advantage from 300mm fabs. Industrial and auto end markets growing."
+            },
+            {
+                'ticker': 'SPGI',
+                'company': 'S&P Global',
+                'pe': 34.2,
+                'eps_growth': 12.8,
+                'roe': 24.6,
+                'debt_equity': 0.68,
+                'profit_margin': 32.8,
+                'sector': 'Financial Services',
+                'buffett_notes': "Credit ratings duopoly with Moody's. Market intelligence and indices create recurring revenue. Essential financial infrastructure."
+            },
+            {
+                'ticker': 'ACN',
+                'company': 'Accenture',
+                'pe': 26.4,
+                'eps_growth': 11.2,
+                'roe': 28.9,
+                'debt_equity': 0.18,
+                'profit_margin': 11.4,
+                'sector': 'Technology',
+                'buffett_notes': "Global IT consulting leader embedded in client operations. Digital transformation and AI services driving demand. 90%+ client retention."
             }
         ]
 
@@ -304,7 +469,7 @@ class UncleWarrenSays:
         return score
 
     def generate_recommendations(self):
-        """Generate top 10 stock recommendations with summaries"""
+        """Generate top 25 stock recommendations with summaries"""
         stocks = self.get_curated_buffett_stocks()
 
         # Calculate Buffett scores
@@ -314,7 +479,7 @@ class UncleWarrenSays:
         # Sort by Buffett score
         stocks_sorted = sorted(stocks, key=lambda x: x['buffett_score'], reverse=True)
 
-        return stocks_sorted[:10]
+        return stocks_sorted[:25]
 
     def generate_report(self, recommendations):
         """Generate a formatted report"""
