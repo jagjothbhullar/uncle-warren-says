@@ -31,10 +31,24 @@ git clone https://github.com/jagjothbhullar/uncle-warren-says.git
 cd uncle-warren-says
 
 # Install dependencies
-pip install pandas requests beautifulsoup4
+pip install -r requirements.txt
 ```
 
 ## Usage
+
+### Web App - "What Would Warren Do?"
+
+Run the interactive web application:
+
+```bash
+python app.py
+```
+
+Then open http://localhost:5050 in your browser. Enter any stock ticker and click **"What Would Warren Do?"** to get instant analysis.
+
+### Command Line - Top 25 Report
+
+Generate a full report of pre-screened value stocks:
 
 ```bash
 python uncle_warren_says.py
