@@ -47,13 +47,22 @@ This generates:
 
 ## Sample Output
 
-Top picks based on Buffett Score (out of 100):
+Top 25 picks based on Buffett Score (out of 100):
 
-1. **BRK.B** (90) - Berkshire Hathaway
-2. **JNJ** (80) - Johnson & Johnson
-3. **AXP** (75) - American Express
-4. **V** (75) - Visa Inc.
-5. **UNH** (75) - UnitedHealth Group
+| Rank | Ticker | Company | Score |
+|------|--------|---------|-------|
+| 1 | BRK.B | Berkshire Hathaway | 90 |
+| 2 | META | Meta Platforms | 90 |
+| 3 | GOOGL | Alphabet | 85 |
+| 4 | MRK | Merck & Co. | 85 |
+| 5 | JNJ | Johnson & Johnson | 80 |
+| 6 | AXP | American Express | 75 |
+| 7 | V | Visa | 75 |
+| 8 | UNH | UnitedHealth | 75 |
+| 9 | MSFT | Microsoft | 75 |
+| 10 | CAT | Caterpillar | 75 |
+
+*...plus 15 more value stocks*
 
 ## Data Sources
 
