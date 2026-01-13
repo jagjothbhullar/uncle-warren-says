@@ -501,6 +501,67 @@
             font-size: 0.8rem;
             margin-top: 10px;
         }
+
+        .stock-of-day-row {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .sotd-btn {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .sotd-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(155, 89, 182, 0.4);
+        }
+
+        .sotd-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .sotd-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .extended-analysis {
+            background: rgba(155, 89, 182, 0.1);
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #ddd;
+        }
+
+        .extended-analysis-title {
+            color: #9b59b6;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -515,13 +576,16 @@
                 <input type="text" id="ticker-input" placeholder="Enter ticker or company name...">
                 <button class="warren-btn" id="analyze-btn">What Would Warren Do?</button>
             </div>
+            <div class="stock-of-day-row">
+                <button class="sotd-btn" id="sotd-btn">Stock of the Day</button>
+            </div>
             <div class="criteria">
                 <span>P/E &lt; 35</span>
                 <span>EPS Growth &gt; 10%</span>
                 <span>ROE &gt; 15%</span>
                 <span>Low Debt</span>
             </div>
-            <p class="hint">Try: AAPL, Pinterest, Berkshire, Tesla...</p>
+            <p class="hint">Try: Apple, Pinterest, Berkshire, Tesla...</p>
         </div>
 
         <div class="result-container" id="result">
@@ -542,12 +606,42 @@
     <script>
         const tickerInput = document.getElementById('ticker-input');
         const analyzeBtn = document.getElementById('analyze-btn');
+        const sotdBtn = document.getElementById('sotd-btn');
         const resultContainer = document.getElementById('result');
 
         analyzeBtn.addEventListener('click', analyzeStock);
+        sotdBtn.addEventListener('click', getStockOfTheDay);
         tickerInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') analyzeStock();
         });
+
+        async function getStockOfTheDay() {
+            sotdBtn.disabled = true;
+            sotdBtn.textContent = 'Finding pick...';
+            resultContainer.classList.add('show');
+            resultContainer.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Uncle Warren is selecting today's pick...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/stock-of-the-day');
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.message);
+                } else {
+                    showResult(data);
+                }
+            } catch (error) {
+                showError('Something went wrong. Please try again.');
+            } finally {
+                sotdBtn.disabled = false;
+                sotdBtn.textContent = 'Stock of the Day';
+            }
+        }
 
         async function analyzeStock() {
             const query = tickerInput.value.trim();
@@ -678,9 +772,17 @@
                     <span class="verdict-emoji">${data.emoji}</span>
                     <span class="verdict-badge verdict-${data.verdict}">${data.verdict}</span>
                     <span style="color:#888;font-size:0.9rem;">Score: ${data.score}/100</span>
+                    ${data.is_stock_of_day ? '<span class="sotd-badge">Pick of the Day</span>' : ''}
                 </div>
 
                 <div class="summary">${data.summary}</div>
+
+                ${data.extended_analysis ? `
+                    <div class="extended-analysis">
+                        <div class="extended-analysis-title">Investment Thesis</div>
+                        ${data.extended_analysis}
+                    </div>
+                ` : ''}
 
                 <!-- Price Header -->
                 <div class="price-header">

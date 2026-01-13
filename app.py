@@ -9,6 +9,8 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import json
+import random
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -16,20 +18,123 @@ HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
 }
 
+# Curated list of stocks that typically score well on Buffett metrics
+STOCK_OF_DAY_CANDIDATES = [
+    {'ticker': 'BRK.B', 'name': 'Berkshire Hathaway'},
+    {'ticker': 'GOOGL', 'name': 'Alphabet'},
+    {'ticker': 'META', 'name': 'Meta Platforms'},
+    {'ticker': 'JNJ', 'name': 'Johnson & Johnson'},
+    {'ticker': 'V', 'name': 'Visa'},
+    {'ticker': 'MA', 'name': 'Mastercard'},
+    {'ticker': 'UNH', 'name': 'UnitedHealth'},
+    {'ticker': 'PG', 'name': 'Procter & Gamble'},
+    {'ticker': 'KO', 'name': 'Coca-Cola'},
+    {'ticker': 'MRK', 'name': 'Merck'},
+    {'ticker': 'ABBV', 'name': 'AbbVie'},
+    {'ticker': 'JPM', 'name': 'JPMorgan Chase'},
+    {'ticker': 'BAC', 'name': 'Bank of America'},
+    {'ticker': 'AXP', 'name': 'American Express'},
+    {'ticker': 'COST', 'name': 'Costco'},
+    {'ticker': 'CAT', 'name': 'Caterpillar'},
+    {'ticker': 'AVGO', 'name': 'Broadcom'},
+    {'ticker': 'TXN', 'name': 'Texas Instruments'},
+    {'ticker': 'MSFT', 'name': 'Microsoft'},
+    {'ticker': 'AAPL', 'name': 'Apple'},
+]
+
 def search_ticker(query):
     """Search for a stock by company name or ticker"""
-    query = query.strip().upper()
+    original_query = query.strip()
+    query_upper = original_query.upper()
 
-    # If it looks like a ticker (short, no spaces), try it directly
-    if len(query) <= 5 and ' ' not in query:
-        return query
+    # Remove $ prefix if present
+    if query_upper.startswith('$'):
+        query_upper = query_upper[1:]
+        original_query = original_query[1:]
 
-    # Otherwise, search by company name using Yahoo Finance
+    # Common name mappings for quick lookup
+    common_names = {
+        'TESLA': 'TSLA',
+        'APPLE': 'AAPL',
+        'GOOGLE': 'GOOGL',
+        'ALPHABET': 'GOOGL',
+        'AMAZON': 'AMZN',
+        'FACEBOOK': 'META',
+        'META': 'META',
+        'MICROSOFT': 'MSFT',
+        'NETFLIX': 'NFLX',
+        'NVIDIA': 'NVDA',
+        'BERKSHIRE': 'BRK.B',
+        'WALMART': 'WMT',
+        'DISNEY': 'DIS',
+        'COCA-COLA': 'KO',
+        'COCACOLA': 'KO',
+        'COKE': 'KO',
+        'PEPSI': 'PEP',
+        'PEPSICO': 'PEP',
+        'PINTEREST': 'PINS',
+        'TWITTER': 'X',
+        'STARBUCKS': 'SBUX',
+        'MCDONALDS': 'MCD',
+        'NIKE': 'NKE',
+        'BOEING': 'BA',
+        'INTEL': 'INTC',
+        'AMD': 'AMD',
+        'PAYPAL': 'PYPL',
+        'SALESFORCE': 'CRM',
+        'ORACLE': 'ORCL',
+        'IBM': 'IBM',
+        'CISCO': 'CSCO',
+        'VISA': 'V',
+        'MASTERCARD': 'MA',
+        'JPMORGAN': 'JPM',
+        'GOLDMAN': 'GS',
+        'MORGAN STANLEY': 'MS',
+        'WELLS FARGO': 'WFC',
+        'COSTCO': 'COST',
+        'TARGET': 'TGT',
+        'HOME DEPOT': 'HD',
+        'LOWES': 'LOW',
+        'SPOTIFY': 'SPOT',
+        'UBER': 'UBER',
+        'LYFT': 'LYFT',
+        'AIRBNB': 'ABNB',
+        'SNAP': 'SNAP',
+        'SNAPCHAT': 'SNAP',
+        'ZOOM': 'ZM',
+        'SHOPIFY': 'SHOP',
+        'SQUARE': 'SQ',
+        'BLOCK': 'SQ',
+        'ROBINHOOD': 'HOOD',
+        'COINBASE': 'COIN',
+        'PALANTIR': 'PLTR',
+        'SNOWFLAKE': 'SNOW',
+        'CROWDSTRIKE': 'CRWD',
+        'DATADOG': 'DDOG',
+    }
+
+    # Check common names first
+    if query_upper in common_names:
+        return common_names[query_upper]
+
+    # Check if it looks like a valid ticker already (1-5 uppercase letters, possibly with . for BRK.B style)
+    if re.match(r'^[A-Z]{1,5}(\.[A-Z])?$', query_upper):
+        # Could be a ticker, but let's verify it exists first
+        # Try to fetch it directly - if it works, use it
+        test_url = f"https://finviz.com/quote.ashx?t={query_upper}"
+        try:
+            response = requests.get(test_url, headers=HEADERS, timeout=5)
+            if response.status_code == 200 and 'not found' not in response.text.lower():
+                return query_upper
+        except:
+            pass
+
+    # Search via Yahoo Finance for any query
     try:
-        search_url = f"https://query1.finance.yahoo.com/v1/finance/search"
+        search_url = "https://query1.finance.yahoo.com/v1/finance/search"
         params = {
-            'q': query,
-            'quotesCount': 5,
+            'q': original_query,
+            'quotesCount': 10,
             'newsCount': 0,
             'enableFuzzyQuery': True,
             'quotesQueryId': 'tss_match_phrase_query'
@@ -38,17 +143,28 @@ def search_ticker(query):
         data = response.json()
 
         if data.get('quotes') and len(data['quotes']) > 0:
-            # Return the first matching stock ticker
+            # Return the first matching US stock ticker
+            for quote in data['quotes']:
+                symbol = quote.get('symbol', '')
+                quote_type = quote.get('quoteType', '')
+                exchange = quote.get('exchange', '')
+
+                # Prefer US equities
+                if quote_type == 'EQUITY' and not any(x in symbol for x in ['.', ':']):
+                    return symbol
+
+            # Fallback to first equity
             for quote in data['quotes']:
                 if quote.get('quoteType') == 'EQUITY':
                     return quote.get('symbol')
-            # If no equity found, return first result
+
+            # Last resort: first result
             return data['quotes'][0].get('symbol')
     except Exception as e:
-        print(f"Search error: {e}")
+        print(f"Yahoo search error: {e}")
 
-    # Fallback: return the query as-is
-    return query.replace(' ', '')
+    # Final fallback: return the query as uppercase
+    return query_upper
 
 def fetch_stock_data(ticker):
     """Fetch stock metrics from Finviz"""
@@ -72,7 +188,6 @@ def fetch_stock_data(ticker):
         # Get current price
         price_elem = soup.find('strong', {'class': 'quote-price_wrapper_price'})
         if not price_elem:
-            # Try alternative selector
             price_elem = soup.find('strong', class_=lambda x: x and 'price' in x.lower() if x else False)
 
         current_price = None
@@ -106,7 +221,6 @@ def fetch_stock_data(ticker):
 def fetch_price_history(ticker):
     """Fetch 3-month price history from Yahoo Finance"""
     try:
-        # Get 3 months of daily data
         url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
         params = {
             'interval': '1d',
@@ -126,7 +240,6 @@ def fetch_price_history(ticker):
         if not timestamps or not closes:
             return None
 
-        # Calculate returns
         valid_closes = [c for c in closes if c is not None]
         if len(valid_closes) < 2:
             return None
@@ -135,11 +248,9 @@ def fetch_price_history(ticker):
         end_price = valid_closes[-1]
         return_3m = ((end_price - start_price) / start_price) * 100
 
-        # Get sparkline data (sample every few days for performance)
         step = max(1, len(valid_closes) // 30)
         sparkline = valid_closes[::step]
 
-        # Find 52-week high/low from the data we have
         high_3m = max(valid_closes)
         low_3m = min(valid_closes)
 
@@ -156,6 +267,71 @@ def fetch_price_history(ticker):
         print(f"Error fetching price history for {ticker}: {e}")
         return None
 
+def fetch_news_summary(ticker, company_name):
+    """Fetch recent news and generate investment commentary"""
+    try:
+        # Try to get news from Yahoo Finance
+        url = f"https://query1.finance.yahoo.com/v1/finance/search"
+        params = {
+            'q': ticker,
+            'newsCount': 5,
+            'quotesCount': 0
+        }
+        response = requests.get(url, params=params, headers=HEADERS, timeout=5)
+        data = response.json()
+
+        news_items = data.get('news', [])
+        headlines = [item.get('title', '') for item in news_items[:3] if item.get('title')]
+
+        return headlines
+    except Exception as e:
+        print(f"Error fetching news for {ticker}: {e}")
+        return []
+
+def generate_extended_analysis(metrics, analysis, news_headlines):
+    """Generate extended investment thesis with 2-3 additional sentences"""
+    ticker = metrics.get('ticker', '')
+    company = metrics.get('company', '')
+
+    # Get key metrics for commentary
+    pe = analysis['metrics'].get('pe')
+    roe = analysis['metrics'].get('roe')
+    profit_margin = analysis['metrics'].get('profit_margin')
+    debt_equity = analysis['metrics'].get('debt_equity')
+    dividend = analysis['metrics'].get('dividend_yield')
+    eps_growth = analysis['metrics'].get('eps_growth')
+
+    extended = []
+
+    # Valuation commentary
+    if pe and pe < 20:
+        extended.append(f"At {pe:.1f}x earnings, {company} trades at a significant discount to the S&P 500 average of ~23x, suggesting the market may be undervaluing its earnings power.")
+    elif pe and pe < 30:
+        extended.append(f"The current P/E of {pe:.1f}x reflects reasonable expectations for future growth while not requiring heroic assumptions to justify the valuation.")
+
+    # Quality commentary
+    if roe and roe > 20 and profit_margin and profit_margin > 15:
+        extended.append(f"The combination of {roe:.0f}% return on equity and {profit_margin:.0f}% profit margins demonstrates the durable competitive advantages that Buffett seeks - pricing power and efficient capital allocation.")
+    elif roe and roe > 15:
+        extended.append(f"Management has demonstrated solid capital allocation with {roe:.0f}% return on equity, reinvesting profits effectively to compound shareholder value.")
+
+    # Balance sheet commentary
+    if debt_equity and debt_equity < 0.5:
+        extended.append(f"The conservative balance sheet (D/E: {debt_equity:.2f}) provides flexibility to weather economic downturns and pursue opportunistic acquisitions - a hallmark of Buffett's fortress-like businesses.")
+
+    # Growth + Dividend
+    if eps_growth and eps_growth > 10 and dividend and dividend > 1:
+        extended.append(f"Investors get the best of both worlds: {eps_growth:.0f}% earnings growth for capital appreciation plus a {dividend:.1f}% dividend yield for current income.")
+    elif eps_growth and eps_growth > 15:
+        extended.append(f"With {eps_growth:.0f}% projected earnings growth, the company is compounding intrinsic value at a rate that should translate to strong long-term returns.")
+
+    # Add news context if available
+    if news_headlines:
+        extended.append(f"Recent headlines: \"{news_headlines[0]}\" - staying informed on company developments helps investors maintain conviction through volatility.")
+
+    # Limit to 2-3 sentences
+    return ' '.join(extended[:3])
+
 def parse_metric(value):
     """Parse a metric value to float"""
     if not value or value == '-':
@@ -166,7 +342,7 @@ def parse_metric(value):
     except:
         return None
 
-def analyze_stock(metrics, price_history=None):
+def analyze_stock(metrics, price_history=None, extended=False):
     """Analyze stock against Buffett's and Graham's criteria"""
     if not metrics:
         return None
@@ -197,17 +373,12 @@ def analyze_stock(metrics, price_history=None):
     inst_own = parse_metric(metrics.get('Inst Own'))
     perf_ytd = parse_metric(metrics.get('Perf YTD'))
     perf_year = parse_metric(metrics.get('Perf Year'))
-    volatility_w = metrics.get('Volatility', '').split()[0] if metrics.get('Volatility') else None
-    volatility = parse_metric(volatility_w)
 
-    # 52-week range
     week_52_high = parse_metric(metrics.get('52W High'))
     week_52_low = parse_metric(metrics.get('52W Low'))
 
-    # Market cap & shares
     market_cap = metrics.get('Market Cap', 'N/A')
 
-    # Use fallbacks
     if pe is None:
         pe = forward_pe
     if eps_growth is None:
@@ -219,7 +390,6 @@ def analyze_stock(metrics, price_history=None):
         'price': metrics.get('price'),
         'market_cap': market_cap,
         'metrics': {
-            # Buffett metrics
             'pe': pe,
             'forward_pe': forward_pe,
             'eps_growth': eps_growth,
@@ -228,20 +398,16 @@ def analyze_stock(metrics, price_history=None):
             'debt_equity': debt_equity,
             'profit_margin': profit_margin,
             'oper_margin': oper_margin,
-            # Graham metrics
             'pb': pb,
             'ps': ps,
             'current_ratio': current_ratio,
             'quick_ratio': quick_ratio,
             'dividend_yield': dividend_yield,
             'payout_ratio': payout_ratio,
-            # Risk metrics
             'beta': beta,
             'short_float': short_float,
-            # Ownership
             'insider_own': insider_own,
             'inst_own': inst_own,
-            # Performance
             'perf_ytd': perf_ytd,
             'perf_year': perf_year,
             '52w_high': week_52_high,
@@ -255,8 +421,6 @@ def analyze_stock(metrics, price_history=None):
     max_score = 0
     reasons_for = []
     reasons_against = []
-
-    # === BUFFETT CRITERIA ===
 
     # P/E Analysis (25 points)
     max_score += 25
@@ -294,7 +458,7 @@ def analyze_stock(metrics, price_history=None):
         else:
             reasons_against.append(f"Weak earnings growth of {eps_growth:.1f}%")
 
-    # ROE (15 points) - Buffett loves high ROE
+    # ROE (15 points)
     max_score += 15
     if roe is not None:
         if roe > 25:
@@ -309,7 +473,7 @@ def analyze_stock(metrics, price_history=None):
         else:
             reasons_against.append(f"Low ROE of {roe:.1f}% suggests poor capital efficiency")
 
-    # Profit Margin (10 points) - indicates pricing power/moat
+    # Profit Margin (10 points)
     max_score += 10
     if profit_margin is not None:
         if profit_margin > 20:
@@ -322,9 +486,7 @@ def analyze_stock(metrics, price_history=None):
         elif profit_margin > 5:
             score += 4
 
-    # === GRAHAM CRITERIA ===
-
-    # Price to Book (10 points) - Graham's favorite
+    # Price to Book (10 points)
     max_score += 10
     if pb is not None:
         if pb < 1.5:
@@ -337,7 +499,7 @@ def analyze_stock(metrics, price_history=None):
         else:
             reasons_against.append(f"High P/B of {pb:.1f} - paying premium over assets")
 
-    # Current Ratio (10 points) - Graham's safety test
+    # Current Ratio (10 points)
     max_score += 10
     if current_ratio is not None:
         if current_ratio > 2.0:
@@ -366,25 +528,25 @@ def analyze_stock(metrics, price_history=None):
         else:
             reasons_against.append(f"High debt levels (D/E: {debt_equity:.2f})")
 
-    # Dividend (bonus points for income investors)
+    # Dividend bonus
     if dividend_yield is not None and dividend_yield > 0:
         if dividend_yield > 3:
             reasons_for.append(f"Attractive {dividend_yield:.1f}% dividend yield")
         elif dividend_yield > 1.5:
             reasons_for.append(f"Pays {dividend_yield:.1f}% dividend")
 
-    # Insider ownership (Buffett likes skin in the game)
+    # Insider ownership
     if insider_own is not None and insider_own > 10:
         reasons_for.append(f"High insider ownership ({insider_own:.1f}%)")
 
-    # Normalize score to 100
+    # Normalize score
     final_score = int((score / max_score) * 100) if max_score > 0 else 0
 
     analysis['score'] = final_score
-    analysis['reasons_for'] = reasons_for[:4]  # Top 4 reasons
-    analysis['reasons_against'] = reasons_against[:3]  # Top 3 concerns
+    analysis['reasons_for'] = reasons_for[:4]
+    analysis['reasons_against'] = reasons_against[:3]
 
-    # Generate Warren's verdict
+    # Generate verdict
     if final_score >= 75:
         verdict = "BUY"
         emoji = "✅"
@@ -402,7 +564,6 @@ def analyze_stock(metrics, price_history=None):
         emoji = "❌"
         summary = f"Warren would likely pass on {metrics['company']}. "
 
-    # Build the summary
     if reasons_for:
         summary += reasons_for[0] + ". "
     if reasons_against:
@@ -413,6 +574,12 @@ def analyze_stock(metrics, price_history=None):
     analysis['verdict'] = verdict
     analysis['emoji'] = emoji
     analysis['summary'] = summary
+
+    # Add extended analysis if requested
+    if extended:
+        news = fetch_news_summary(metrics['ticker'], metrics['company'])
+        analysis['extended_analysis'] = generate_extended_analysis(metrics, analysis, news)
+        analysis['news_headlines'] = news
 
     return analysis
 
@@ -429,23 +596,52 @@ def search(query):
 @app.route('/analyze/<query>')
 def analyze(query):
     """API endpoint to analyze a stock"""
-    # First, resolve the query to a ticker
     ticker = search_ticker(query)
-
-    # Fetch stock data
     metrics = fetch_stock_data(ticker)
 
     if not metrics:
         return jsonify({
             'error': True,
-            'message': f"Could not find '{query}'. Try a ticker symbol (e.g., AAPL) or company name."
+            'message': f"Could not find '{query}'. Try a ticker symbol (e.g., AAPL) or company name (e.g., Apple)."
         })
 
-    # Fetch price history
     price_history = fetch_price_history(ticker)
-
-    # Analyze
     analysis = analyze_stock(metrics, price_history)
+    return jsonify(analysis)
+
+@app.route('/stock-of-the-day')
+def stock_of_the_day():
+    """Return a curated stock pick with extended analysis"""
+    # Use date as seed for consistent daily pick
+    today = datetime.now().strftime('%Y-%m-%d')
+    random.seed(today)
+
+    # Try candidates until we find one with a good score
+    candidates = STOCK_OF_DAY_CANDIDATES.copy()
+    random.shuffle(candidates)
+
+    for candidate in candidates:
+        ticker = candidate['ticker']
+        metrics = fetch_stock_data(ticker)
+
+        if not metrics:
+            continue
+
+        price_history = fetch_price_history(ticker)
+        analysis = analyze_stock(metrics, price_history, extended=True)
+
+        # Only return if it has a BUY or CONSIDER rating
+        if analysis and analysis.get('score', 0) >= 55:
+            analysis['is_stock_of_day'] = True
+            analysis['pick_date'] = today
+            return jsonify(analysis)
+
+    # Fallback to Berkshire if nothing else works
+    metrics = fetch_stock_data('BRK.B')
+    price_history = fetch_price_history('BRK.B')
+    analysis = analyze_stock(metrics, price_history, extended=True)
+    analysis['is_stock_of_day'] = True
+    analysis['pick_date'] = today
     return jsonify(analysis)
 
 if __name__ == '__main__':
