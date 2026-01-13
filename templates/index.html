@@ -673,6 +673,15 @@
             }
 
             resultContainer.innerHTML = `
+                <!-- Verdict FIRST -->
+                <div class="verdict-section">
+                    <span class="verdict-emoji">${data.emoji}</span>
+                    <span class="verdict-badge verdict-${data.verdict}">${data.verdict}</span>
+                    <span style="color:#888;font-size:0.9rem;">Score: ${data.score}/100</span>
+                </div>
+
+                <div class="summary">${data.summary}</div>
+
                 <!-- Price Header -->
                 <div class="price-header">
                     <div class="stock-info">
@@ -689,36 +698,6 @@
                         ` : ''}
                     </div>
                 </div>
-
-                <!-- Chart -->
-                ${ph && ph.sparkline ? `
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <span>3-Month Performance</span>
-                            <span>$${ph.start_price} → $${ph.end_price}</span>
-                        </div>
-                        <div class="sparkline-container" id="sparkline"></div>
-                        <div class="chart-stats">
-                            <div class="chart-stat">
-                                <div class="chart-stat-value">$${ph.low_3m}</div>
-                                <div>3mo Low</div>
-                            </div>
-                            <div class="chart-stat">
-                                <div class="chart-stat-value">$${ph.high_3m}</div>
-                                <div>3mo High</div>
-                            </div>
-                        </div>
-                    </div>
-                ` : ''}
-
-                <!-- Verdict -->
-                <div class="verdict-section">
-                    <span class="verdict-emoji">${data.emoji}</span>
-                    <span class="verdict-badge verdict-${data.verdict}">${data.verdict}</span>
-                    <span style="color:#888;font-size:0.9rem;">Score: ${data.score}/100</span>
-                </div>
-
-                <div class="summary">${data.summary}</div>
 
                 <!-- Buffett Metrics -->
                 <div class="metrics-section">
@@ -743,9 +722,9 @@
                     </div>
                 </div>
 
-                <!-- Graham Metrics -->
+                <!-- Graham & Additional Metrics Combined -->
                 <div class="metrics-section">
-                    <div class="section-title">Graham Metrics</div>
+                    <div class="section-title">Graham & Additional Metrics</div>
                     <div class="metrics-grid">
                         <div class="metric-card">
                             <div class="metric-label">P/B Ratio</div>
@@ -763,17 +742,6 @@
                             <div class="metric-label">Dividend</div>
                             <div class="metric-value ${getMetricClass('dividend_yield', m.dividend_yield)}">${formatValue(m.dividend_yield, '%')}</div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Additional Info -->
-                <div class="metrics-section">
-                    <div class="section-title">Additional Info</div>
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-label">Beta</div>
-                            <div class="metric-value">${formatValue(m.beta)}</div>
-                        </div>
                         <div class="metric-card">
                             <div class="metric-label">Insider Own</div>
                             <div class="metric-value">${formatValue(m.insider_own, '%')}</div>
@@ -785,6 +753,10 @@
                         <div class="metric-card">
                             <div class="metric-label">YTD Perf</div>
                             <div class="metric-value ${m.perf_ytd > 0 ? 'good' : m.perf_ytd < 0 ? 'bad' : ''}">${formatValue(m.perf_ytd, '%')}</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">1Y Perf</div>
+                            <div class="metric-value ${m.perf_year > 0 ? 'good' : m.perf_year < 0 ? 'bad' : ''}">${formatValue(m.perf_year, '%')}</div>
                         </div>
                     </div>
                 </div>
@@ -800,6 +772,27 @@
                         <ul>${consHtml}</ul>
                     </div>
                 </div>
+
+                <!-- Chart moved to bottom -->
+                ${ph && ph.sparkline ? `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <span>3-Month Performance</span>
+                            <span>$${ph.start_price} → $${ph.end_price}</span>
+                        </div>
+                        <div class="sparkline-container" id="sparkline"></div>
+                        <div class="chart-stats">
+                            <div class="chart-stat">
+                                <div class="chart-stat-value">$${ph.low_3m}</div>
+                                <div>3mo Low</div>
+                            </div>
+                            <div class="chart-stat">
+                                <div class="chart-stat-value">$${ph.high_3m}</div>
+                                <div>3mo High</div>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
 
                 <!-- Score Bar -->
                 <div class="score-bar">
