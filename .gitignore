@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 .DS_Store
 *.csv
-*.txt
 *.json
 .ipynb_checkpoints/
+
+# Ignore generated reports but keep requirements
+uncle_warren_report.txt
+!requirements.txt
