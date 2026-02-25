@@ -562,6 +562,79 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+
+        /* Technical Indicators */
+        .tech-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        @media (min-width: 500px) {
+            .tech-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .signal-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .signal-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+
+        .signal-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .signal-dot.bullish { background: #2ecc71; }
+        .signal-dot.bearish { background: #e74c3c; }
+        .signal-dot.neutral { background: #f39c12; }
+
+        .cross-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cross-badge.golden {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.4);
+        }
+
+        .cross-badge.death {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.4);
+        }
+
+        .score-detail {
+            font-size: 0.75rem;
+            color: #888;
+        }
     </style>
 </head>
 <body>
@@ -701,6 +774,8 @@
                     return value > 15 ? 'good' : value > 5 ? 'ok' : 'bad';
                 case 'dividend_yield':
                     return value > 2 ? 'good' : value > 0 ? 'ok' : 'neutral';
+                case 'rsi':
+                    return (value >= 30 && value <= 70) ? 'good' : value < 30 ? 'ok' : 'bad';
                 default:
                     return '';
             }
@@ -875,7 +950,49 @@
                     </div>
                 </div>
 
-                <!-- Chart moved to bottom -->
+                <!-- Technical Indicators -->
+                ${data.technical ? `
+                    <div class="tech-section">
+                        <div class="section-title">Technical Indicators</div>
+                        <div class="tech-grid">
+                            <div class="metric-card">
+                                <div class="metric-label">RSI (14)</div>
+                                <div class="metric-value ${getMetricClass('rsi', data.technical.rsi)}">${data.technical.rsi !== null ? data.technical.rsi.toFixed(1) : 'N/A'}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">50-Day SMA</div>
+                                <div class="metric-value">${data.technical.sma_50 !== null ? '$' + data.technical.sma_50.toFixed(2) : 'N/A'}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">200-Day SMA</div>
+                                <div class="metric-value">${data.technical.sma_200 !== null ? '$' + data.technical.sma_200.toFixed(2) : 'N/A'}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">vs 200-SMA</div>
+                                <div class="metric-value ${data.technical.price_vs_sma200 !== null ? (data.technical.price_vs_sma200 > 0 ? 'good' : 'bad') : ''}">${data.technical.price_vs_sma200 !== null ? (data.technical.price_vs_sma200 > 0 ? '+' : '') + data.technical.price_vs_sma200.toFixed(1) + '%' : 'N/A'}</div>
+                            </div>
+                        </div>
+                        ${data.technical.golden_cross !== null ? `
+                            <div style="margin-bottom:10px;">
+                                <span class="cross-badge ${data.technical.golden_cross ? 'golden' : 'death'}">
+                                    ${data.technical.golden_cross ? 'Golden Cross' : 'Death Cross'}
+                                </span>
+                            </div>
+                        ` : ''}
+                        ${data.technical.signals && data.technical.signals.length > 0 ? `
+                            <div class="signal-list">
+                                ${data.technical.signals.map(s => `
+                                    <div class="signal-item">
+                                        <span class="signal-dot ${s.type}"></span>
+                                        <span>${s.label}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+
+                <!-- Chart -->
                 ${ph && ph.sparkline ? `
                     <div class="chart-container">
                         <div class="chart-header">
@@ -899,8 +1016,8 @@
                 <!-- Score Bar -->
                 <div class="score-bar">
                     <div class="score-label">
-                        <span>Buffett Score</span>
-                        <span>${data.score}/100</span>
+                        <span>Warren Score</span>
+                        <span>${data.score}/100 <span class="score-detail">(Fundamental: ${data.fundamental_score || data.score})</span></span>
                     </div>
                     <div class="score-track">
                         <div class="score-fill" style="width: ${data.score}%"></div>
